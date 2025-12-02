@@ -1,0 +1,124 @@
+{
+  "reviews": [
+    {
+      "id": "rev-001",
+      "siteId": "site-001",
+      "visitorName": "Laurent Durand",
+      "rating": 5,
+      "title": "Expérience magnifique",
+      "comment": "Très beau site, guide excellent, organisation parfaite. Je reviendrai certainement.",
+      "date": "2025-01-28",
+      "verified": true,
+      "sentiment": "positive",
+      "keywords": ["guide excellent", "organisation", "revenir"]
+    },
+    {
+      "id": "rev-002",
+      "siteId": "site-001",
+      "visitorName": "Sophie Moreau",
+      "rating": 3,
+      "title": "Bien mais manque d'information",
+      "comment": "Site intéressant mais les explications du guide manquaient de détails. Améliorer la formation des guides.",
+      "date": "2025-01-27",
+      "verified": true,
+      "sentiment": "neutral",
+      "keywords": ["guide", "formation", "information"]
+    },
+    {
+      "id": "rev-003",
+      "siteId": "site-002",
+      "visitorName": "Marc Antoine",
+      "rating": 5,
+      "title": "Spectaculaire!",
+      "comment": "Le site est magnifique, l'accueil chaleureux, les activités variées. Parfait pour les familles.",
+      "date": "2025-01-26",
+      "verified": true,
+      "sentiment": "positive",
+      "keywords": ["magnifique", "accueil chaleureux", "familles", "activités"]
+    },
+    {
+      "id": "rev-004",
+      "siteId": "site-002",
+      "visitorName": "Isabelle Mercier",
+      "rating": 2,
+      "title": "Déçu par les prix",
+      "comment": "Beau site mais les tarifs sont trop élevés. La nourriture au restaurant est chère et pas très bonne.",
+      "date": "2025-01-25",
+      "verified": true,
+      "sentiment": "negative",
+      "keywords": ["prix élevés", "restaurant", "nourriture"]
+    },
+    {
+      "id": "rev-005",
+      "siteId": "site-004",
+      "visitorName": "Philippe Renault",
+      "rating": 5,
+      "title": "Incontournable",
+      "comment": "Une des plus belles cascades de la région. Les guides connaissent bien les chemins. Très sûr.",
+      "date": "2025-01-24",
+      "verified": true,
+      "sentiment": "positive",
+      "keywords": ["belles cascades", "sûr", "guides compétents"]
+    },
+    {
+      "id": "rev-006",
+      "siteId": "site-003",
+      "visitorName": "Emma Lefevre",
+      "rating": 1,
+      "title": "Très décevant",
+      "comment": "Le site était en travaux lors de ma visite. Pas d'accès aux attractions principales. Aurait dû vérifier avant de venir.",
+      "date": "2025-01-23",
+      "verified": true,
+      "sentiment": "negative",
+      "keywords": ["travaux", "accès", "attractions fermées"]
+    },
+    {
+      "id": "rev-007",
+      "siteId": "site-006",
+      "visitorName": "Thomas Chabot",
+      "rating": 4,
+      "title": "Plage superbe",
+      "comment": "Très belle plage, eau claire. Le personnel est aimable. Juste le stationnement est un peu chaotique.",
+      "date": "2025-01-22",
+      "verified": true,
+      "sentiment": "positive",
+      "keywords": ["plage superbe", "personnel aimable", "stationnement"]
+    },
+    {
+      "id": "rev-008",
+      "siteId": "site-006",
+      "visitorName": "Nicole Gérard",
+      "rating": 2,
+      "title": "Propreté insuffisante",
+      "comment": "Le site n'est pas assez propre. Les toilettes sont dans un état déplorable. À améliorer d'urgence.",
+      "date": "2025-01-21",
+      "verified": true,
+      "sentiment": "negative",
+      "keywords": ["propreté", "toilettes", "hygiène"]
+    },
+    {
+      "id": "rev-009",
+      "siteId": "site-004",
+      "visitorName": "Henri Valentin",
+      "rating": 5,
+      "title": "Paradis naturel",
+      "comment": "Vraiment magique. Le coucher de soleil est inoubliable. À recommander absolument.",
+      "date": "2025-01-20",
+      "verified": true,
+      "sentiment": "positive",
+      "keywords": ["magique", "coucher de soleil", "inoubliable"]
+    },
+    {
+      "id": "rev-010",
+      "siteId": "site-002",
+      "visitorName": "Amélie Fontaine",
+      "rating": 4,
+      "title": "Très bien organisé",
+      "comment": "Excellent accueil, bien organisé. Un peu long pour accéder aux zones principales mais ça vaut le coup.",
+      "date": "2025-01-19",
+      "verified": true,
+      "sentiment": "positive",
+      "keywords": ["bien organisé", "accueil", "accès"]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "method": "Wave",
+    "revenue": 42500000,
+    "transactions": 1205,
+    "percentage": 33.9
+  },
+  {
+    "id": 2,
+    "method": "Orange Money",
+    "revenue": 28700000,
+    "transactions": 892,
+    "percentage": 22.9
+  },
+  {
+    "id": 3,
+    "method": "MTN Money",
+    "revenue": 18900000,
+    "transactions": 567,
+    "percentage": 15.1
+  },
+  {
+    "id": 4,
+    "method": "Carte Visa",
+    "revenue": 16200000,
+    "transactions": 401,
+    "percentage": 12.9
+  },
+  {
+    "id": 5,
+    "method": "Moov Money",
+    "revenue": 12450000,
+    "transactions": 324,
+    "percentage": 9.9
+  },
+  {
+    "id": 6,
+    "method": "Virement Bancaire",
+    "revenue": 6500000,
+    "transactions": 89,
+    "percentage": 5.2
+  }
+]

@@ -1,0 +1,54 @@
+[
+  {
+    "id": 1,
+    "title": "Augmenter revenus de 25%",
+    "target": 125000000,
+    "current": 98500000,
+    "progress": 78.8,
+    "deadline": "2025-12-31",
+    "owner": "PDG",
+    "status": "on-track",
+    "actions": [
+      "Lancer campagne marketing france",
+      "Augmenter prix forfaits premium de 15%",
+      "Développer activités VR immersive"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Atteindre NPS 80",
+    "target": 80,
+    "current": 72,
+    "progress": 90,
+    "deadline": "2025-11-30",
+    "owner": "Responsable Qualité",
+    "status": "on-track",
+    "actions": ["Améliorer service restaurant", "Réduire temps attente accueil", "Former guides service client"]
+  },
+  {
+    "id": 3,
+    "title": "Occuper 85% des capacités",
+    "target": 85,
+    "current": 74.2,
+    "progress": 87.3,
+    "deadline": "2025-12-15",
+    "owner": "Coordinateur Général",
+    "status": "at-risk",
+    "actions": [
+      "Promo forfaits montagne 20% réduction",
+      "Partenariat agences voyages Sénégal",
+      "Campagne marketing groupes corporatifs"
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Recruter 5 guides supplémentaires",
+    "target": 5,
+    "current": 2,
+    "progress": 40,
+    "deadline": "2025-10-31",
+    "owner": "Responsable RH",
+    "status": "delayed",
+    "actions": ["Lancer recrutement immédiatement", "Accélérer processus formation", "Proposer primes compétitivité"]
+  }
+]

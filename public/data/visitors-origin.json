@@ -1,0 +1,76 @@
+{
+  "origins": [
+    {
+      "id": "origin-001",
+      "country": "Côte d'Ivoire",
+      "continent": "Afrique",
+      "visitors": 2450,
+      "percentage": 38.5,
+      "revenue": 285000000,
+      "color": "#FF6B35"
+    },
+    {
+      "id": "origin-002",
+      "country": "Sénégal",
+      "continent": "Afrique",
+      "visitors": 1280,
+      "percentage": 20.1,
+      "revenue": 150000000,
+      "color": "#004E89"
+    },
+    {
+      "id": "origin-003",
+      "country": "France",
+      "continent": "Europe",
+      "visitors": 980,
+      "percentage": 15.4,
+      "revenue": 175000000,
+      "color": "#1982C4"
+    },
+    {
+      "id": "origin-004",
+      "country": "Burkina Faso",
+      "continent": "Afrique",
+      "visitors": 650,
+      "percentage": 10.2,
+      "revenue": 80000000,
+      "color": "#8AC926"
+    },
+    {
+      "id": "origin-005",
+      "country": "États-Unis",
+      "continent": "Amérique",
+      "visitors": 420,
+      "percentage": 6.6,
+      "revenue": 95000000,
+      "color": "#FFB627"
+    },
+    {
+      "id": "origin-006",
+      "country": "Belgique",
+      "continent": "Europe",
+      "visitors": 280,
+      "percentage": 4.4,
+      "revenue": 45000000,
+      "color": "#FF006E"
+    },
+    {
+      "id": "origin-007",
+      "country": "Guinée",
+      "continent": "Afrique",
+      "visitors": 200,
+      "percentage": 3.1,
+      "revenue": 25000000,
+      "color": "#00D9FF"
+    },
+    {
+      "id": "origin-008",
+      "country": "Canada",
+      "continent": "Amérique",
+      "visitors": 115,
+      "percentage": 1.8,
+      "revenue": 18000000,
+      "color": "#6A4C93"
+    }
+  ]
+}

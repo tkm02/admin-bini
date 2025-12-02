@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "name": "Safari Nocturne Luxe",
+    "description": "Expérience safari de nuit avec guide expert et dîner gastronomique",
+    "cost": 2500000,
+    "implementationTime": "3 mois",
+    "expectedRevenue": 8500000,
+    "roi": "240%",
+    "targetMarket": "Touristes premium internationaux",
+    "capacity": 12,
+    "margin": "52%"
+  },
+  {
+    "id": 2,
+    "name": "Yoga & Wellness Retreat",
+    "description": "Retraite 3 jours yoga, spa et bien-être en nature",
+    "cost": 1800000,
+    "implementationTime": "6 semaines",
+    "expectedRevenue": 6200000,
+    "roi": "244%",
+    "targetMarket": "Couples, groupes bien-être",
+    "capacity": 20,
+    "margin": "48%"
+  },
+  {
+    "id": 3,
+    "name": "Parachutisme Tandem",
+    "description": "Saut en parachute tandem avec photos aériennes",
+    "cost": 4200000,
+    "implementationTime": "4 mois",
+    "expectedRevenue": 14500000,
+    "roi": "245%",
+    "targetMarket": "Aventuriers, jeunes professionnels",
+    "capacity": 15,
+    "margin": "68%"
+  },
+  {
+    "id": 4,
+    "name": "Immersion VR Premium",
+    "description": "Expérience réalité virtuelle immersive écosystèmes mondiaux",
+    "cost": 3500000,
+    "implementationTime": "8 semaines",
+    "expectedRevenue": 9800000,
+    "roi": "180%",
+    "targetMarket": "Familles, groupes, écoles",
+    "capacity": 50,
+    "margin": "55%"
+  },
+  {
+    "id": 5,
+    "name": "Masterclass Photo Nature",
+    "description": "Formation photo 2 jours avec photographe professionnel",
+    "cost": 900000,
+    "implementationTime": "2 semaines",
+    "expectedRevenue": 3200000,
+    "roi": "256%",
+    "targetMarket": "Passionnés photographie",
+    "capacity": 10,
+    "margin": "71%"
+  }
+]

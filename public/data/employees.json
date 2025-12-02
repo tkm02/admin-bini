@@ -1,0 +1,124 @@
+{
+  "employees": [
+    {
+      "id": "emp-001",
+      "firstName": "Jean",
+      "lastName": "Kouadio",
+      "role": "Manager",
+      "siteId": "site-001",
+      "email": "jean.kouadio@domainebini.ci",
+      "phone": "+225 07 12 34 56 78",
+      "hireDate": "2018-01-10",
+      "salary": 450000,
+      "status": "active"
+    },
+    {
+      "id": "emp-002",
+      "firstName": "Marie",
+      "lastName": "Assié",
+      "role": "Manager",
+      "siteId": "site-002",
+      "email": "marie.assie@domainebini.ci",
+      "phone": "+225 07 98 76 54 32",
+      "hireDate": "2020-02-15",
+      "salary": 450000,
+      "status": "active"
+    },
+    {
+      "id": "emp-003",
+      "firstName": "Alphonse",
+      "lastName": "Koffi",
+      "role": "Guide",
+      "siteId": "site-001",
+      "email": "alphonse.koffi@domainebini.ci",
+      "phone": "+225 07 23 45 67 89",
+      "hireDate": "2019-05-22",
+      "salary": 180000,
+      "status": "active"
+    },
+    {
+      "id": "emp-004",
+      "firstName": "Yvette",
+      "lastName": "Ebié",
+      "role": "Accueil",
+      "siteId": "site-001",
+      "email": "yvette.ebie@domainebini.ci",
+      "phone": "+225 07 11 22 33 44",
+      "hireDate": "2020-08-10",
+      "salary": 150000,
+      "status": "active"
+    },
+    {
+      "id": "emp-005",
+      "firstName": "Olivier",
+      "lastName": "Mensah",
+      "role": "Technique",
+      "siteId": "site-002",
+      "email": "olivier.mensah@domainebini.ci",
+      "phone": "+225 07 55 66 77 88",
+      "hireDate": "2020-03-01",
+      "salary": 200000,
+      "status": "active"
+    },
+    {
+      "id": "emp-006",
+      "firstName": "Fatima",
+      "lastName": "Traoré",
+      "role": "Guide",
+      "siteId": "site-002",
+      "email": "fatima.traore@domainebini.ci",
+      "phone": "+225 07 99 88 77 66",
+      "hireDate": "2019-11-18",
+      "salary": 180000,
+      "status": "active"
+    },
+    {
+      "id": "emp-007",
+      "firstName": "Raphaël",
+      "lastName": "Boué",
+      "role": "Guide",
+      "siteId": "site-004",
+      "email": "raphael.boue@domainebini.ci",
+      "phone": "+225 07 44 55 66 77",
+      "hireDate": "2018-09-05",
+      "salary": 180000,
+      "status": "active"
+    },
+    {
+      "id": "emp-008",
+      "firstName": "Constance",
+      "lastName": "Dufour",
+      "role": "Manager",
+      "siteId": "site-006",
+      "email": "constance.dufour@domainebini.ci",
+      "phone": "+225 07 33 44 55 66",
+      "hireDate": "2020-05-01",
+      "salary": 450000,
+      "status": "on_leave"
+    },
+    {
+      "id": "emp-009",
+      "firstName": "Xavier",
+      "lastName": "Goa",
+      "role": "Technique",
+      "siteId": "site-006",
+      "email": "xavier.goa@domainebini.ci",
+      "phone": "+225 07 77 88 99 00",
+      "hireDate": "2021-01-15",
+      "salary": 200000,
+      "status": "active"
+    },
+    {
+      "id": "emp-010",
+      "firstName": "Hélène",
+      "lastName": "Epée",
+      "role": "Accueil",
+      "siteId": "site-006",
+      "email": "helene.epee@domainebini.ci",
+      "phone": "+225 07 22 33 44 55",
+      "hireDate": "2020-12-01",
+      "salary": 150000,
+      "status": "active"
+    }
+  ]
+}
