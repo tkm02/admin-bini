@@ -1,78 +1,120 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
+import { useState, useEffect } from 'react';
+import {
+  fetchDashboardSites,
+  fetchEmployees,
+  fetchDashboardReviews,
+  fetchBookings,
+} from '@/lib/api/dashboard-service';
 
-export interface Site {
-  id: string
-  name: string
-  region: string
-  capacity: number
-  currentVisitors: number
-  status: "active" | "maintenance" | "closed"
-  manager: string
-  revenue: number
-  rating: number
+interface VisitorOrigin {
+  country: string;
+  city: string;
+  count: number;
 }
 
-export interface Employee {
-  id: string
-  firstName: string
-  lastName: string
-  role: string
-  siteId: string
-  salary: number
-  status: "active" | "on_leave" | "inactive"
-}
-export interface Review {
-  id: string
-  siteId: string
-  visitorName: string
-  rating: number
-  title: string
-  comment: string
-  date: string
-  sentiment: "positive" | "neutral" | "negative"
-  keywords: string[]
+interface DashboardData {
+  sites: any[];
+  employees: any[];
+  reviews: any[];
+  bookings: any[];
+  visitorsOrigin: VisitorOrigin[];
+  loading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
 }
 
-export function useDashboardData() {
-  const [sites, setSites] = useState<Site[]>([])
-  const [employees, setEmployees] = useState<Employee[]>([])
-  const [reviews, setReviews] = useState<Review[]>([])
-  const [visitorsOrigin, setVisitorsOrigin] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+export function useDashboardData(): DashboardData {
+  const [sites, setSites] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [visitorsOrigin, setVisitorsOrigin] = useState<VisitorOrigin[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch toutes les données en parallèle
+      const [sitesData, employeesData, reviewsData, bookingsData] = await Promise.all([
+        fetchDashboardSites(),
+        fetchEmployees(),
+        fetchDashboardReviews(),
+        fetchBookings(),
+      ]);
+
+      // Traiter les sites
+      const sitesArray = Array.isArray(sitesData) ? sitesData : sitesData.data || [];
+      setSites(sitesArray);
+
+      // Traiter les employés
+      const employeesArray = Array.isArray(employeesData) ? employeesData : employeesData.data || [];
+      setEmployees(employeesArray);
+
+      // Traiter les avis
+      const reviewsArray = Array.isArray(reviewsData) 
+        ? reviewsData 
+        : reviewsData.results || reviewsData.data || [];
+      setReviews(reviewsArray);
+
+      // Traiter les réservations
+      const bookingsArray = Array.isArray(bookingsData) 
+        ? bookingsData 
+        : bookingsData.data || [];
+      setBookings(bookingsArray);
+
+      // Calculer l'origine des visiteurs depuis les bookings
+      const origins = calculateVisitorsOrigin(bookingsArray);
+      setVisitorsOrigin(origins);
+
+    } catch (err: any) {
+      console.error('Dashboard data fetch error:', err);
+      setError(err.message || 'Erreur lors du chargement des données');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Calculer l'origine des visiteurs
+  const calculateVisitorsOrigin = (bookings: any[]): VisitorOrigin[] => {
+    const originMap = new Map<string, VisitorOrigin>();
+
+    bookings.forEach((booking) => {
+      const key = `${booking.visitorCountry}-${booking.visitorCity}`;
+      
+      if (originMap.has(key)) {
+        const existing = originMap.get(key)!;
+        existing.count += 1;
+      } else {
+        originMap.set(key, {
+          country: booking.visitorCountry || 'Inconnu',
+          city: booking.visitorCity || 'Inconnu',
+          count: 1,
+        });
+      }
+    });
+
+    return Array.from(originMap.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10); // Top 10 origines
+  };
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [sitesRes, employeesRes, reviewsRes,visitorsOrigin] = await Promise.all([
-          fetch("/data/sites.json"),
-          fetch("/data/employees.json"),
-          fetch("/data/reviews.json"),
-          fetch("/data/visitors-origin.json"),
-        ])
+    fetchData();
+  }, []);
 
-        const sitesData = await sitesRes.json()
-        const employeesData = await employeesRes.json()
-        const reviewsData = await reviewsRes.json()
-        const visitorsOriginRes = await visitorsOrigin.json()
-
-        // console.log("visitorsOrigin 3 :",visitorsOriginRes)
-
-        setSites(sitesData.sites)
-        setEmployees(employeesData.employees)
-        setReviews(reviewsData.reviews)
-        setVisitorsOrigin(visitorsOriginRes.origins)
-
-      } catch (error) {
-        console.error("Error loading data:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadData()
-  }, [])
-
-  return { sites, employees, reviews, visitorsOrigin ,loading }
+  return {
+    sites,
+    employees,
+    reviews,
+    bookings,
+    visitorsOrigin,
+    loading,
+    error,
+    refetch: fetchData,
+  };
 }

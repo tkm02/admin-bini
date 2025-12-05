@@ -20,9 +20,10 @@ export function SentimentChart({ reviews, dateRange }: SentimentChartProps) {
     script.onload = () => {
       const Highcharts = (window as any).Highcharts;
 
-      const positive = reviews.filter((r) => r.sentiment === "positive").length;
-      const neutral = reviews.filter((r) => r.sentiment === "neutral").length;
-      const negative = reviews.filter((r) => r.sentiment === "negative").length;
+      const positive = reviews.filter((r) => r.type === "positive").length;
+      console.log(positive)
+      const neutral = reviews.filter((r) => r.type === "neutral").length;
+      const negative = reviews.filter((r) => r.type === "negative").length;
 
       const chart = Highcharts.chart(chartRef.current, {
         chart: { type: "pie", height: 300 },

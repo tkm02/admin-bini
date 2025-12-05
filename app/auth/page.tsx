@@ -1,64 +1,68 @@
 "use client";
 
 import type React from "react";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading, error: authError, clearError } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [localError, setLocalError] = useState("");
+
+  // Rediriger si déjà connecté
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setIsLoading(true);
+    setLocalError("");
+    clearError();
 
     if (!email || !password) {
-      setError("Veuillez remplir tous les champs");
-      setIsLoading(false);
+      setLocalError("Veuillez remplir tous les champs");
       return;
     }
 
-    const success = login(email, password);
+    const success = await login(email, password);
+    console.log(success)
     if (success) {
       router.push("/dashboard");
-    } else {
-      setError("Email ou mot de passe incorrect");
     }
-    setIsLoading(false);
   };
+
+  const displayError = localError || authError;
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        {/* Header compact */}
-       <div className="flex items-center justify-center mb-6 gap-3">
-  <div className="h-10 w-10 rounded-md bg-white flex items-center justify-center shadow-sm overflow-hidden">
-    <Image
-      src="/logo.png"   // mets ici le chemin réel de ton logo (dans /public/images)
-      alt="Domaine Bini"
-      width={40}
-      height={40}
-      className="object-contain"
-    />
-  </div>
-  <div>
-    <h1 className="text-xl font-semibold text-slate-900">Domaine Bini</h1>
-    <p className="text-xs text-slate-500">Tableau de bord écotourisme</p>
-  </div>
-</div>
+        {/* Header */}
+        <div className="flex items-center justify-center mb-6 gap-3">
+          <div className="h-10 w-10 rounded-md bg-white flex items-center justify-center shadow-sm overflow-hidden">
+            <Image
+              src="/logo.png"
+              alt="Domaine Bini"
+              width={40}
+              height={40}
+              className="object-contain"
+            />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold text-slate-900">Domaine Bini</h1>
+            <p className="text-xs text-slate-500">Tableau de bord écotourisme</p>
+          </div>
+        </div>
 
         {/* Card connexion */}
         <Card className="border-slate-200 shadow-sm">
@@ -72,11 +76,11 @@ export default function LoginPage() {
           </div>
 
           <div className="px-6 pb-6">
-            {error && (
+            {displayError && (
               <Alert className="mb-4 border-red-200 bg-red-50">
                 <AlertCircle className="h-4 w-4 text-red-600" />
                 <AlertDescription className="text-xs text-red-700 ml-1.5">
-                  {error}
+                  {displayError}
                 </AlertDescription>
               </Alert>
             )}
@@ -92,6 +96,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="pdg@domainebini.ci"
                   className="h-9 text-sm"
+                  disabled={isLoading}
                 />
               </div>
 
@@ -105,6 +110,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="h-9 text-sm"
+                  disabled={isLoading}
                 />
               </div>
 
@@ -113,23 +119,28 @@ export default function LoginPage() {
                 disabled={isLoading}
                 className="w-full h-9 text-sm font-medium bg-emerald-600 hover:bg-emerald-700"
               >
-                {isLoading ? "Connexion..." : "Se connecter"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Connexion...
+                  </>
+                ) : (
+                  "Se connecter"
+                )}
               </Button>
             </form>
 
-            {/* Bloc démo discret */}
+            {/* Bloc démo */}
             <div className="mt-5 rounded-md bg-slate-50 border border-dashed border-slate-300 px-3 py-2.5">
               <p className="text-xs font-semibold text-slate-700 mb-1.5">
                 Identifiants de démonstration
               </p>
               <div className="space-y-0.5 text-[11px] text-slate-600">
                 <p>
-                  <span className="font-medium">PDG :</span>{" "}
-                  pdg@domainebini.ci / admin123
+                  <span className="font-medium">PDG :</span> pdg@domainebini.ci / admin123
                 </p>
                 <p>
-                  <span className="font-medium">Coordinateur :</span>{" "}
-                  coordinator@domainebini.ci / admin123
+                  <span className="font-medium">Coordinateur :</span> coordinator@domainebini.ci / admin123
                 </p>
               </div>
             </div>

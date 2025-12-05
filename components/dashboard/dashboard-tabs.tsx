@@ -34,9 +34,10 @@ interface DashboardTabsProps {
   employees: any[]
   reviews: any[]
   visitorsOrigin: any[]
+  bookings?: any[]
 }
 
-export function DashboardTabs({ sites, employees, reviews,visitorsOrigin }: DashboardTabsProps) {
+export function DashboardTabs({ sites, employees, reviews,visitorsOrigin,bookings }: DashboardTabsProps) {
   const [activeTab, setActiveTab] = useState("overview")
   // console.log("visitorsOrigin : ",visitorsOrigin)
 
@@ -96,7 +97,7 @@ export function DashboardTabs({ sites, employees, reviews,visitorsOrigin }: Dash
 
         {/* Existing tabs */}
         <TabsContent value="overview" className="mt-6">
-          <OverviewTab sites={sites} employees={employees} reviews={reviews} visitorsOrigin={visitorsOrigin}/>
+          <OverviewTab sites={sites} employees={employees} reviews={reviews} visitorsOrigin={visitorsOrigin} bookings={bookings} />
         </TabsContent>
 
         <TabsContent value="objectives" className="mt-6">

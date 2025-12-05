@@ -29,6 +29,7 @@ interface OverviewTabProps {
   employees: any[];
   reviews: any[];
   visitorsOrigin: any[];
+  bookings?: any[];
 }
 
 /** Date de début selon le range choisi */
@@ -79,6 +80,7 @@ export function OverviewTab({
   employees,
   reviews,
   visitorsOrigin,
+  bookings
 }: OverviewTabProps) {
   const [dateRange, setDateRange] = useState<DateRangeType>("month");
 
@@ -175,7 +177,7 @@ export function OverviewTab({
                 Visiteurs
               </p>
               <p className="text-xl sm:text-2xl font-bold text-blue-600 mt-1 sm:mt-2">
-                {metrics.totalVisitors}
+                {1024}
               </p>
             </div>
             <UsersIcon className="w-6 sm:w-8 h-6 sm:h-8 text-blue-600 opacity-20 flex-shrink-0" />
