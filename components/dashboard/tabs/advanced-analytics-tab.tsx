@@ -2,38 +2,46 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { fetchAdvancedAnalytics } from "@/lib/api/analytics-service";
 import { Loader2 } from "lucide-react";
 
-export function AdvancedAnalyticsTab() {
+interface SiteOccupation {
+  siteId: string;
+  siteName: string;
+  totalPeople: number;
+  maxCapacity: number;
+  occupationRate: number;
+  revenue: number;
+  bookingCount: number;
+}
+
+interface DashboardStats {
+  userStats: number;
+  siteStats: number;
+  bookingStats: number;
+  revenueStats: number;
+  reviewStats: number;
+  globalOccupationRate: number;
+  totalPeople: number;
+  totalCapacity: number;
+  siteOccupations: SiteOccupation[];
+}
+
+export function AdvancedAnalyticsTab({ stats }: { stats: DashboardStats | null }) {
   const chartRef1 = useRef<HTMLDivElement>(null);
   const chartRef2 = useRef<HTMLDivElement>(null);
 
   const chartInstance1 = useRef<any>(null);
   const chartInstance2 = useRef<any>(null);
 
-  const [sites, setSites] = useState<any[]>([]);
-  const [globalMetrics, setGlobalMetrics] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const loadAnalytics = async () => {
+    if (!stats?.siteOccupations) return;
+
+    const loadCharts = async () => {
+      setLoading(true);
+
       try {
-        setLoading(true);
-        setError(null);
-
-        // Charger les données depuis l'API
-        const data = await fetchAdvancedAnalytics();
-        
-        // Trier par revenus mensuels
-        const sortedByRevenue = [...data.sites].sort(
-          (a, b) => (b.monthlyRevenue || 0) - (a.monthlyRevenue || 0)
-        );
-        
-        setSites(sortedByRevenue);
-        setGlobalMetrics(data.globalMetrics);
-
         // Attendre que Highcharts soit chargé
         if (typeof window !== "undefined") {
           const ensureHighcharts = async () => {
@@ -53,32 +61,76 @@ export function AdvancedAnalyticsTab() {
           const Highcharts = (window as any).Highcharts;
           if (!Highcharts) return;
 
-          const top5 = sortedByRevenue.slice(0, 5);
+          // Trier par revenus décroissants et prendre le top 5
+          const top5ByRevenue = [...stats.siteOccupations]
+            .sort((a, b) => b.revenue - a.revenue)
+            .slice(0, 5);
 
           // Détruire anciens charts
           chartInstance1.current?.destroy();
           chartInstance2.current?.destroy();
 
-          // Chart 1 : Revenus
-          if (chartRef1.current && top5.length > 0) {
+          // ==========================================
+          // Chart 1 : Top 5 Revenus
+          // ==========================================
+          if (chartRef1.current && top5ByRevenue.length > 0) {
             chartInstance1.current = Highcharts.chart(chartRef1.current, {
-              chart: { type: "bar", height: 350, backgroundColor: 'transparent' },
-              title: { text: "Top 5 Sites - Chiffre d'Affaires Mensuel" },
+              chart: { 
+                type: "bar", 
+                height: 350, 
+                backgroundColor: 'transparent' 
+              },
+              title: { 
+                text: "Top 5 Sites - Revenus Totaux",
+                style: {
+                  fontSize: '16px',
+                  fontWeight: 'bold'
+                }
+              },
               accessibility: { enabled: false },
               xAxis: {
-                categories: top5.map((s: any) => s.name),
+                categories: top5ByRevenue.map((s) => s.siteName.replace("Bini ", "")),
+                labels: {
+                  style: {
+                    fontSize: '12px'
+                  }
+                }
               },
               yAxis: {
-                title: { text: "Revenus (CFA)" },
+                title: { 
+                  text: "Revenus (CFA)",
+                  style: {
+                    fontSize: '12px'
+                  }
+                },
+                labels: {
+                  formatter: function() {
+                    return Highcharts.numberFormat(this.value, 0, ',', ' ');
+                  }
+                }
               },
               tooltip: {
-                pointFormat: "<b>{point.y:,.0f}</b> CFA",
+                headerFormat: '<b>{point.key}</b><br/>',
+                pointFormat: 
+                  'Revenus: <b>{point.y:,.0f} CFA</b><br/>' +
+                  'Réservations: <b>{point.bookings}</b>'
               },
               plotOptions: {
                 bar: {
                   dataLabels: {
                     enabled: true,
-                    format: "{point.y:,.0f}",
+                    formatter: function() {
+                      if (this.y >= 1000000) {
+                        return Highcharts.numberFormat(this.y / 1000000, 1) + 'M';
+                      } else if (this.y >= 1000) {
+                        return Highcharts.numberFormat(this.y / 1000, 0) + 'k';
+                      }
+                      return Highcharts.numberFormat(this.y, 0);
+                    },
+                    style: {
+                      fontSize: '11px',
+                      fontWeight: 'bold'
+                    }
                   },
                   borderRadius: 4
                 },
@@ -87,9 +139,10 @@ export function AdvancedAnalyticsTab() {
                 {
                   name: "Revenus",
                   colorByPoint: true,
-                  data: top5.map((s: any, index: number) => ({
-                    y: s.monthlyRevenue || 0,
-                    color: ['#2B7A0B', '#76C043', '#FF9F1C', '#FFB703', '#94a3b8'][index],
+                  data: top5ByRevenue.map((s, index) => ({
+                    y: s.revenue,
+                    bookings: s.bookingCount,
+                    color: ['#15803D', '#16A34A', '#22C55E', '#4ADE80', '#86EFAC'][index],
                   })),
                 },
               ],
@@ -97,96 +150,145 @@ export function AdvancedAnalyticsTab() {
             });
           }
 
-          // Chart 2 : Occupation
-          if (chartRef2.current && top5.length > 0) {
+          // ==========================================
+          // Chart 2 : Taux d'Occupation des Top 5
+          // ==========================================
+          if (chartRef2.current && top5ByRevenue.length > 0) {
             chartInstance2.current = Highcharts.chart(chartRef2.current, {
-              chart: { type: "area", height: 350, backgroundColor: 'transparent' },
-              title: { text: "Taux d'Occupation des Sites (30 derniers jours)" },
+              chart: { 
+                type: "column", 
+                height: 350, 
+                backgroundColor: 'transparent' 
+              },
+              title: { 
+                text: "Taux d'Occupation - Top 5 Sites",
+                style: {
+                  fontSize: '16px',
+                  fontWeight: 'bold'
+                }
+              },
               accessibility: { enabled: false },
               xAxis: {
-                categories: top5.map((s: any) => s.name),
+                categories: top5ByRevenue.map((s) => s.siteName.replace("Bini ", "")),
+                labels: {
+                  rotation: -45,
+                  style: {
+                    fontSize: '11px'
+                  }
+                }
               },
               yAxis: {
-                title: { text: "Taux d'Occupation (%)" },
+                title: { 
+                  text: "Taux d'Occupation (%)",
+                  style: {
+                    fontSize: '12px'
+                  }
+                },
                 max: 100,
                 min: 0,
+                labels: {
+                  format: '{value}%'
+                }
               },
               tooltip: {
-                pointFormat: "{point.y:.1f}%",
+                headerFormat: '<b>{point.key}</b><br/>',
+                pointFormat: 
+                  'Occupation: <b>{point.y:.1f}%</b><br/>' +
+                  'Visiteurs: <b>{point.people}/{point.capacity}</b>'
               },
               plotOptions: {
-                area: {
+                column: {
                   dataLabels: {
                     enabled: true,
-                    format: "{point.y:.0f}%",
+                    format: "{point.y:.1f}%",
+                    style: {
+                      fontSize: '11px',
+                      fontWeight: 'bold'
+                    }
                   },
-                  fillOpacity: 0.5
+                  borderRadius: 4
                 },
               },
               series: [
                 {
                   name: "Occupation",
-                  data: top5.map((s: any) => parseFloat((s.occupancyRate || 0).toFixed(1))),
-                  color: "#FF9F1C",
+                  colorByPoint: true,
+                  data: top5ByRevenue.map((s, index) => {
+                    const percentage = s.occupationRate * 100;
+                    let color = '#22C55E'; // Vert
+                    if (percentage >= 70) color = '#EF4444'; // Rouge
+                    else if (percentage >= 40) color = '#F59E0B'; // Orange
+
+                    return {
+                      y: parseFloat(percentage.toFixed(1)),
+                      people: s.totalPeople,
+                      capacity: s.maxCapacity,
+                      color: color
+                    };
+                  }),
                 },
               ],
               credits: { enabled: false },
             });
           }
         }
-
-      } catch (err: any) {
-        console.error('Analytics load error:', err);
-        setError(err.message || 'Erreur lors du chargement des analytics');
+      } catch (err) {
+        console.error('Charts load error:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    loadAnalytics();
+    loadCharts();
 
     return () => {
       chartInstance1.current?.destroy();
       chartInstance2.current?.destroy();
     };
-  }, []);
+  }, [stats]);
+
+  // Calculer les métriques
+  const bestRevenueSite = stats?.siteOccupations
+    .reduce((max, site) => site.revenue > max.revenue ? site : max, stats.siteOccupations[0]);
+
+  const bestOccupancySite = stats?.siteOccupations
+    .reduce((max, site) => site.occupationRate > max.occupationRate ? site : max, stats.siteOccupations[0]);
+
+  const totalVisitors = stats?.siteOccupations
+    .reduce((sum, s) => sum + s.totalPeople, 0) || 0;
 
   const metriques = [
     { 
       label: "Meilleur site (revenus)", 
-      value: globalMetrics?.bestRevenueSite || "—", 
-      icon: "💰" 
+      value: bestRevenueSite?.siteName || "—", 
+      icon: "💰",
+      detail: bestRevenueSite ? `${bestRevenueSite.revenue.toLocaleString('fr-FR')} CFA` : ""
     },
     {
       label: "Meilleure occupation",
-      value: globalMetrics?.bestOccupancySite || "—",
+      value: bestOccupancySite?.siteName || "—",
       icon: "📊",
+      detail: bestOccupancySite ? `${(bestOccupancySite.occupationRate).toFixed(1)}%` : ""
     },
     { 
-      label: "Visiteurs depuis mise en ligne", 
-      value: globalMetrics?.totalVisitors?.toLocaleString('fr-FR') || "0", 
-      icon: "👥" 
+      label: "Visiteurs totaux", 
+      value: totalVisitors.toLocaleString('fr-FR'), 
+      icon: "👥",
+      detail: `${stats?.totalCapacity.toLocaleString('fr-FR')} capacité`
     },
     { 
-      label: "Jours depuis lancement", 
-      value: `${globalMetrics?.daysSinceLaunch || 0} jours`, 
-      icon: "📅" 
+      label: "Taux d'occupation global", 
+      value: stats ? `${(stats.globalOccupationRate)}%` : "0%", 
+      icon: "📈",
+      detail: `${stats?.bookingStats} réservations`
     },
   ];
 
-  if (loading) {
+  if (!stats) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
         <span className="ml-3 text-gray-600">Chargement des analytics...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6 bg-red-50 border border-red-200 rounded-lg text-red-700">
-        Erreur : {error}
       </div>
     );
   }
@@ -202,6 +304,9 @@ export function AdvancedAnalyticsTab() {
                 <p className="text-3xl mb-2">{m.icon}</p>
                 <p className="text-sm text-gray-600 mb-1">{m.label}</p>
                 <p className="font-bold text-lg text-gray-900">{m.value}</p>
+                {m.detail && (
+                  <p className="text-xs text-gray-500 mt-1">{m.detail}</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -211,10 +316,16 @@ export function AdvancedAnalyticsTab() {
       {/* Graphique 1 : Top revenus */}
       <Card>
         <CardHeader>
-          <CardTitle>Performance Comparative</CardTitle>
+          <CardTitle>Performance Comparative - Revenus</CardTitle>
         </CardHeader>
         <CardContent>
-          <div ref={chartRef1} style={{ minHeight: "350px" }} />
+          {loading ? (
+            <div className="flex items-center justify-center h-[350px]">
+              <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+            </div>
+          ) : (
+            <div ref={chartRef1} style={{ minHeight: "350px" }} />
+          )}
         </CardContent>
       </Card>
 
@@ -224,7 +335,13 @@ export function AdvancedAnalyticsTab() {
           <CardTitle>Capacité et Occupation</CardTitle>
         </CardHeader>
         <CardContent>
-          <div ref={chartRef2} style={{ minHeight: "350px" }} />
+          {loading ? (
+            <div className="flex items-center justify-center h-[350px]">
+              <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+            </div>
+          ) : (
+            <div ref={chartRef2} style={{ minHeight: "350px" }} />
+          )}
         </CardContent>
       </Card>
 
@@ -237,26 +354,92 @@ export function AdvancedAnalyticsTab() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b">
-                  <th className="text-left py-2">Site</th>
-                  <th className="text-right py-2">Revenus (mois)</th>
-                  <th className="text-right py-2">Occupation</th>
-                  <th className="text-right py-2">Réservations</th>
-                  <th className="text-right py-2">Note</th>
+                <tr className="border-b bg-gray-50">
+                  <th className="text-left py-3 px-4 font-semibold">Site</th>
+                  <th className="text-right py-3 px-4 font-semibold">Revenus</th>
+                  <th className="text-right py-3 px-4 font-semibold">Occupation</th>
+                  <th className="text-right py-3 px-4 font-semibold">Visiteurs</th>
+                  <th className="text-right py-3 px-4 font-semibold">Capacité</th>
+                  <th className="text-right py-3 px-4 font-semibold">Réservations</th>
                 </tr>
               </thead>
               <tbody>
-                {sites.map((site, i) => (
-                  <tr key={i} className="border-b hover:bg-gray-50">
-                    <td className="py-2 font-medium">{site.name}</td>
-                    <td className="text-right">{site.monthlyRevenue.toLocaleString('fr-FR')} CFA</td>
-                    <td className="text-right">{site.occupancyRate.toFixed(1)}%</td>
-                    <td className="text-right">{site.totalBookings}</td>
-                    <td className="text-right">⭐ {site.avgRating}</td>
-                  </tr>
-                ))}
+                {[...stats.siteOccupations]
+                  .sort((a, b) => b.revenue - a.revenue)
+                  .map((site, i) => {
+                    const occupationPercentage = site.occupationRate;
+                    let occupationColor = 'text-green-600';
+                    if (occupationPercentage >= 70) occupationColor = 'text-red-600';
+                    else if (occupationPercentage >= 40) occupationColor = 'text-yellow-600';
+
+                    return (
+                      <tr key={site.siteId} className="border-b hover:bg-gray-50 transition-colors">
+                        <td className="py-3 px-4 font-medium text-gray-900">
+                          {i < 3 && (
+                            <span className="mr-2">
+                              {i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}
+                            </span>
+                          )}
+                          {site.siteName}
+                        </td>
+                        <td className="text-right py-3 px-4 font-semibold text-emerald-600">
+                          {site.revenue.toLocaleString('fr-FR')} CFA
+                        </td>
+                        <td className={`text-right py-3 px-4 font-semibold ${occupationColor}`}>
+                          {occupationPercentage.toFixed(1)}%
+                        </td>
+                        <td className="text-right py-3 px-4 text-gray-700">
+                          {site.totalPeople}
+                        </td>
+                        <td className="text-right py-3 px-4 text-gray-700">
+                          {site.maxCapacity}
+                        </td>
+                        <td className="text-right py-3 px-4 text-gray-700">
+                          {site.bookingCount}
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
+              <tfoot>
+                <tr className="border-t-2 border-gray-300 bg-gray-50 font-bold">
+                  <td className="py-3 px-4">TOTAL</td>
+                  <td className="text-right py-3 px-4 text-emerald-600">
+                    {stats.revenueStats.toLocaleString('fr-FR')} CFA
+                  </td>
+                  <td className="text-right py-3 px-4 text-blue-600">
+                    {(stats.globalOccupationRate ).toFixed(1)}%
+                  </td>
+                  <td className="text-right py-3 px-4">
+                    {stats.totalPeople}
+                  </td>
+                  <td className="text-right py-3 px-4">
+                    {stats.totalCapacity}
+                  </td>
+                  <td className="text-right py-3 px-4">
+                    {stats.bookingStats}
+                  </td>
+                </tr>
+              </tfoot>
             </table>
+          </div>
+
+          {/* Légende */}
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="flex justify-center gap-6 text-xs">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded bg-green-500"></div>
+                <span className="text-gray-600">Occupation faible (&lt; 40%)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded bg-yellow-500"></div>
+                <span className="text-gray-600">Occupation moyenne (40-70%)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded bg-red-500"></div>
+                <span className="text-gray-600">Occupation élevée (&gt; 70%)</span>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

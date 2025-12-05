@@ -29,15 +29,34 @@ import { ActivitiesTab } from "./tabs/activities-tab"
 import { PaymentMethodsTab } from "./tabs/payment-methods-tab"
 import { AdvancedAnalyticsTab } from "./tabs/advanced-analytics-tab"
 
+interface SiteOccupation {
+  siteId: string;
+  siteName: string;
+  totalPeople: number;
+  maxCapacity: number;
+  occupationRate: number;
+}
+interface DashboardStats {
+  userStats: number;
+  siteStats: number;
+  bookingStats: number;
+  revenueStats: number;
+  reviewStats: number;
+  globalOccupationRate: number;
+  totalPeople: number;
+  totalCapacity: number;
+  siteOccupations: SiteOccupation[];
+}
 interface DashboardTabsProps {
   sites: any[]
   employees: any[]
   reviews: any[]
   visitorsOrigin: any[]
   bookings?: any[]
+  stats: DashboardStats | null;
 }
 
-export function DashboardTabs({ sites, employees, reviews,visitorsOrigin,bookings }: DashboardTabsProps) {
+export function DashboardTabs({ sites, employees, reviews,visitorsOrigin,bookings,stats }: DashboardTabsProps) {
   const [activeTab, setActiveTab] = useState("overview")
   // console.log("visitorsOrigin : ",visitorsOrigin)
 
@@ -97,7 +116,7 @@ export function DashboardTabs({ sites, employees, reviews,visitorsOrigin,booking
 
         {/* Existing tabs */}
         <TabsContent value="overview" className="mt-6">
-          <OverviewTab sites={sites} employees={employees} reviews={reviews} visitorsOrigin={visitorsOrigin} bookings={bookings} />
+          <OverviewTab sites={sites} employees={employees} reviews={reviews} visitorsOrigin={visitorsOrigin} bookings={bookings} stats={stats} />
         </TabsContent>
 
         <TabsContent value="objectives" className="mt-6">
@@ -105,7 +124,7 @@ export function DashboardTabs({ sites, employees, reviews,visitorsOrigin,booking
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-6">
-          <AdvancedAnalyticsTab />
+          <AdvancedAnalyticsTab stats={stats} />
         </TabsContent>
 
         <TabsContent value="activities" className="mt-6">

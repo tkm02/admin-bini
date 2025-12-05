@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   try {
     const { question, context } = await request.json();
 
-    const contextSummary = JSON.stringify(context).slice(0, 3000);
+    const contextSummary = JSON.stringify(context).slice(0, 5000);
 
     const prompt = `Tu es un expert en stratégie et data analytics pour des sites écotouristiques.
 

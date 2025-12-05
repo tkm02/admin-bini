@@ -1,91 +1,131 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-function getAuthHeaders() {
-  const token = localStorage.getItem('auth_token');
-  return {
-    'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` }),
-  };
-}
+// Créer un site avec upload d'images
+export const createSite = async (siteData: any, images: File[]) => {
+  try {
+    const formData = new FormData();
 
-function getAuthHeadersMultipart() {
-  const token = localStorage.getItem('auth_token');
-  return {
-    ...(token && { 'Authorization': `Bearer ${token}` }),
-    // Ne pas définir Content-Type pour multipart/form-data
-  };
-}
+    // Ajouter les champs texte
+    formData.append('name', siteData.name);
+    formData.append('description', siteData.description);
+    formData.append('location', siteData.location);
+    formData.append('city', siteData.city);
+    formData.append('country', siteData.country);
+    formData.append('price', siteData.price.toString());
+    formData.append('maxCapacity', siteData.maxCapacity.toString());
+    formData.append('openHours', siteData.openHours);
 
-export interface SiteFormData {
-  name: string;
-  description: string;
-  location?: string;
-  city: string;
-  country?: string;
-  price: number;
-  maxCapacity: number;
-  image?: string;
-  images?: string[];
-  tags?: string[];
-  openHours?: string;
-  latitude?: number;
-  longitude?: number;
-  activities?: any[];
-  managerId?: string;
-}
+    // Ajouter les tags (array)
+    if (siteData.tags && siteData.tags.length > 0) {
+      siteData.tags.forEach((tag: string) => {
+        formData.append('tags', tag);
+      });
+    }
 
-// Créer un site
-export async function createSite(data: SiteFormData) {
-  const response = await fetch(`${API_URL}/sites`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
+    // Ajouter les coordonnées GPS si présentes
+    if (siteData.latitude) formData.append('latitude', siteData.latitude.toString());
+    if (siteData.longitude) formData.append('longitude', siteData.longitude.toString());
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Erreur lors de la création du site');
+    // Ajouter les fichiers images
+    images.forEach((file) => {
+      formData.append('images', file);
+    });
+
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_URL}/sites`, {
+      method: 'POST',
+      headers: {
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+        // ❌ NE PAS mettre 'Content-Type': 'multipart/form-data'
+        // Le navigateur le fait automatiquement avec la bonne boundary
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Erreur lors de la création du site');
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error('Erreur createSite:', error);
+    throw error;
   }
-
-  return response.json();
-}
+};
 
 // Mettre à jour un site
-export async function updateSite(id: string, data: Partial<SiteFormData>) {
-  const response = await fetch(`${API_URL}/sites/${id}`, {
-    method: 'PUT',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
+export const updateSite = async (siteId: string, siteData: any, images?: File[]) => {
+  try {
+    const formData = new FormData();
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Erreur lors de la mise à jour du site');
+    // Ajouter les champs texte
+    Object.keys(siteData).forEach((key) => {
+      if (siteData[key] !== undefined && siteData[key] !== null) {
+        if (key === 'tags' && Array.isArray(siteData[key])) {
+          siteData[key].forEach((tag: string) => {
+            formData.append('tags', tag);
+          });
+        } else if (key !== 'image' && key !== 'images') {
+          formData.append(key, siteData[key].toString());
+        }
+      }
+    });
+
+    // Ajouter les nouvelles images si présentes
+    if (images && images.length > 0) {
+      images.forEach((file) => {
+        formData.append('images', file);
+      });
+    }
+
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_URL}/sites/${siteId}`, {
+      method: 'PUT',
+      headers: {
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Erreur lors de la mise à jour');
+    }
+
+    return await response.json();
+  } catch (error: any) {
+    console.error('Erreur updateSite:', error);
+    throw error;
   }
+};
 
-  return response.json();
-}
-
-// Supprimer un site
-export async function deleteSite(id: string) {
-  const response = await fetch(`${API_URL}/sites/${id}`, {
+// Les autres fonctions restent identiques
+export const deleteSite = async (siteId: string) => {
+  const token = localStorage.getItem('auth_token');
+  const response = await fetch(`${API_URL}/sites/${siteId}`, {
     method: 'DELETE',
-    headers: getAuthHeaders(),
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error || 'Erreur lors de la suppression du site');
+    throw new Error(error.error || 'Erreur lors de la suppression');
   }
 
-  return response.json();
-}
+  return await response.json();
+};
 
-// Changer le statut d'un site (actif/inactif)
-export async function updateSiteStatus(id: string, isActive: boolean) {
-  const response = await fetch(`${API_URL}/sites/${id}/status`, {
+export const updateSiteStatus = async (siteId: string, isActive: boolean) => {
+  const token = localStorage.getItem('auth_token');
+  const response = await fetch(`${API_URL}/sites/${siteId}/status`, {
     method: 'PATCH',
-    headers: getAuthHeaders(),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
     body: JSON.stringify({ isActive }),
   });
 
@@ -94,83 +134,5 @@ export async function updateSiteStatus(id: string, isActive: boolean) {
     throw new Error(error.error || 'Erreur lors du changement de statut');
   }
 
-  return response.json();
-}
-
-// Upload d'images (pour les sites)
-export async function uploadSiteImages(files: File[]): Promise<string[]> {
-  const formData = new FormData();
-  files.forEach(file => formData.append('images', file));
-
-  const response = await fetch(`${API_URL}/upload`, {
-    method: 'POST',
-    headers: getAuthHeadersMultipart(),
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Erreur lors de l\'upload des images');
-  }
-
-  const data = await response.json();
-  return data.urls;
-}
-
-// Récupérer tous les sites (pour le dashboard)
-export async function fetchAllSites() {
-  const response = await fetch(`${API_URL}/sites`, {
-    headers: getAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    throw new Error('Erreur lors de la récupération des sites');
-  }
-
-  return response.json();
-}
-
-// Récupérer un site par ID
-export async function fetchSiteById(id: string) {
-  const response = await fetch(`${API_URL}/sites/${id}`, {
-    headers: getAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    throw new Error('Erreur lors de la récupération du site');
-  }
-
-  return response.json();
-}
-
-// Assigner un manager à un site
-export async function assignSiteManager(siteId: string, managerId: string) {
-  const response = await fetch(`${API_URL}/sites/${siteId}`, {
-    method: 'PUT',
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ managerId }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Erreur lors de l\'assignation du manager');
-  }
-
-  return response.json();
-}
-
-// Mettre à jour les dates indisponibles
-export async function updateUnavailableDates(siteId: string, dates: string[]) {
-  const response = await fetch(`${API_URL}/sites/${siteId}`, {
-    method: 'PUT',
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ unavailableDates: dates }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Erreur lors de la mise à jour des dates');
-  }
-
-  return response.json();
-}
+  return await response.json();
+};

@@ -11,10 +11,11 @@ import Image from "next/image"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 
+
 export default function DashboardPage() {
   const router = useRouter()
   const { user, logout, isAuthenticated } = useAuth()
-  const { sites, employees, reviews,bookings, visitorsOrigin, loading, error } = useDashboardData()
+  const { sites, employees, reviews,bookings, visitorsOrigin,stats, loading, error } = useDashboardData()
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
   // Redirect to login if not authenticated
@@ -32,7 +33,7 @@ export default function DashboardPage() {
   if (!isAuthenticated || !user) {
     return null // Will redirect to login
   }
-  console.log(user, sites, employees, reviews,bookings, visitorsOrigin);
+  // console.log(stats);
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -121,6 +122,7 @@ export default function DashboardPage() {
           reviews={reviews} 
           visitorsOrigin={visitorsOrigin}
           bookings={bookings} 
+          stats={stats}
         />
       </main>
 

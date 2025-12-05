@@ -23,13 +23,31 @@ const VisitorOriginChart = dynamic(
   () => import("../charts/visitor-origin-chart").then((mod) => mod.VisitorOriginChart),
   { ssr: false },
 );
-
+interface SiteOccupation {
+  siteId: string;
+  siteName: string;
+  totalPeople: number;
+  maxCapacity: number;
+  occupationRate: number;
+}
+interface DashboardStats {
+  userStats: number;
+  siteStats: number;
+  bookingStats: number;
+  revenueStats: number;
+  reviewStats: number;
+  globalOccupationRate: number;
+  totalPeople: number;
+  totalCapacity: number;
+  siteOccupations: SiteOccupation[];
+}
 interface OverviewTabProps {
   sites: any[];
   employees: any[];
   reviews: any[];
   visitorsOrigin: any[];
   bookings?: any[];
+  stats: DashboardStats | null;
 }
 
 /** Date de début selon le range choisi */
@@ -80,7 +98,9 @@ export function OverviewTab({
   employees,
   reviews,
   visitorsOrigin,
-  bookings
+  bookings,
+  stats,
+
 }: OverviewTabProps) {
   const [dateRange, setDateRange] = useState<DateRangeType>("month");
 
@@ -146,6 +166,7 @@ export function OverviewTab({
       satisfactionRate,
     };
   }, [filteredSites, filteredReviews]);
+  console.log(stats);
 
   return (
     <div className="space-y-6 px-0 sm:px-2">
@@ -163,7 +184,7 @@ export function OverviewTab({
                 Revenus Totaux
               </p>
               <p className="text-xl sm:text-2xl font-bold text-green-600 mt-1 sm:mt-2">
-                {(metrics.totalRevenue / 1_000_000).toFixed(1)}M
+                {(stats?.revenueStats)?.toLocaleString() || 800000} F CFA
               </p>
             </div>
             <TrendingUpIcon className="w-6 sm:w-8 h-6 sm:h-8 text-green-600 opacity-20 flex-shrink-0" />
@@ -177,7 +198,7 @@ export function OverviewTab({
                 Visiteurs
               </p>
               <p className="text-xl sm:text-2xl font-bold text-blue-600 mt-1 sm:mt-2">
-                {1024}
+                {stats?.bookingStats?.toLocaleString() || 1024}
               </p>
             </div>
             <UsersIcon className="w-6 sm:w-8 h-6 sm:h-8 text-blue-600 opacity-20 flex-shrink-0" />
@@ -191,7 +212,7 @@ export function OverviewTab({
                 Note Moyenne
               </p>
               <p className="text-xl sm:text-2xl font-bold text-purple-600 mt-1 sm:mt-2">
-                {metrics.avgRating}/5
+                {(stats?.reviewStats)?.toFixed(2)}/5
               </p>
             </div>
             <StarIcon className="w-6 sm:w-8 h-6 sm:h-8 text-purple-600 opacity-20 flex-shrink-0" />
@@ -205,7 +226,7 @@ export function OverviewTab({
                 Occupation
               </p>
               <p className="text-xl sm:text-2xl font-bold text-orange-600 mt-1 sm:mt-2">
-                {metrics.avgOccupancy}%
+                {stats?.globalOccupationRate}%
               </p>
             </div>
             <AlertCircleIcon className="w-6 sm:w-8 h-6 sm:h-8 text-orange-600 opacity-20 flex-shrink-0" />
@@ -220,7 +241,7 @@ export function OverviewTab({
             Revenus par Site
           </h3>
           <div className="min-h-[300px] sm:min-h-[350px]">
-            <RevenueChart sites={filteredSites} dateRange={dateRange} />
+            <RevenueChart  dateRange={dateRange} stats={stats} />
           </div>
         </Card>
 
@@ -229,7 +250,7 @@ export function OverviewTab({
             Taux d'Occupation
           </h3>
           <div className="min-h-[300px] sm:min-h-[350px]">
-            <OccupancyChart sites={filteredSites} dateRange={dateRange} />
+            <OccupancyChart stats={stats} dateRange={dateRange} />
           </div>
         </Card>
 

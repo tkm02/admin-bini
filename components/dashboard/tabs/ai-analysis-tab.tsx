@@ -27,7 +27,7 @@ export function AiAnalysisTab({ sites, employees, reviews }: AiAnalysisTabProps)
   const [analysis, setAnalysis] = useState("")
   const [loading, setLoading] = useState(false)
   const [selectedQuestion, setSelectedQuestion] = useState<string | null>(null)
-
+  // console.log("sites dans AiAnalysisTab : ",sites)
   const handleAnalysis = async (query: string) => {
     setLoading(true)
     setQuestion(query)

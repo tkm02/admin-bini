@@ -28,48 +28,49 @@ export function ReviewsTab({ reviews: initialReviews, sites }: ReviewsTabProps) 
     if (selectedSiteId === "all") return initialReviews
     return initialReviews.filter((r) => r.siteId === selectedSiteId)
   }, [initialReviews, selectedSiteId])
-
+console.log(selectedReview);
   const handleAnalyzeWithAI = async (review: any) => {
-    setSelectedReview(review)
-    setAnalysisMode("single")
-    setIsAnalysisDialogOpen(true)
-    setIsLoadingAnalysis(true)
-    setAnalysisError(null)
-    setAIAnalysis(null)
+  setSelectedReview(review)
+  setAnalysisMode("single")
+  setIsAnalysisDialogOpen(true)
+  setIsLoadingAnalysis(true)
+  setAnalysisError(null)
+  setAIAnalysis(null)
 
-    try {
-      const siteName = sites.find((s) => s.id === review.siteId)?.name || "N/A"
-      
-      const response = await fetch("/api/ai/analyze-review", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          review: review.comment || "",
-          title: review.title || "", 
-          rating: review.rating || 0,
-          siteName: siteName,
-        }),
-      })      
+  try {
+    const siteName = sites.find((s) => s.id === review.siteId)?.name || "N/A"
+    
+    const response = await fetch("/api/ai/analyze-review", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        review: review.comment || "Aucun commentaire",
+        title: review.title || "Avis sans titre", // ✅ Valeur par défaut
+        rating: review.rating || 0,
+        siteName: siteName,
+      }),
+    })      
 
-      if (!response.ok) {
-        throw new Error(`Erreur ${response.status}: ${response.statusText}`)
-      }
-
-      const data = await response.json()
-      if (data.error) {
-        setAnalysisError(data.error)
-      } else {
-        setAIAnalysis(data)
-      }
-    } catch (error) {
-      console.error("Error analyzing review:", error)
-      setAnalysisError(
-        error instanceof Error ? error.message : "Erreur lors de l'analyse"
-      )
-    } finally {
-      setIsLoadingAnalysis(false)
+    if (!response.ok) {
+      throw new Error(`Erreur ${response.status}: ${response.statusText}`)
     }
+
+    const data = await response.json()
+    if (data.error) {
+      setAnalysisError(data.error)
+    } else {
+      setAIAnalysis(data)
+    }
+  } catch (error) {
+    console.error("Error analyzing review:", error)
+    setAnalysisError(
+      error instanceof Error ? error.message : "Erreur lors de l'analyse"
+    )
+  } finally {
+    setIsLoadingAnalysis(false)
   }
+}
+
 
   const handleBatchAnalysis = async () => {
     setAnalysisMode("batch")
@@ -144,6 +145,7 @@ export function ReviewsTab({ reviews: initialReviews, sites }: ReviewsTabProps) 
     }
   }
 
+
   // Analytics Summary
   const totalReviews = filteredReviews.length
   const averageRating =
@@ -154,14 +156,13 @@ export function ReviewsTab({ reviews: initialReviews, sites }: ReviewsTabProps) 
         ).toFixed(1)
       : "0"
   const positiveReviews = filteredReviews.filter(
-    (r) => r.sentiment === "positive"
+    (r) => r.type === "positive"
   ).length
   const negativeReviews = filteredReviews.filter(
-    (r) => r.sentiment === "negative"
+    (r) => r.type === "negative"
   ).length
   const satisfactionRate =
     totalReviews > 0 ? Math.round((positiveReviews / totalReviews) * 100) : 0
-
   return (
     <div className="space-y-6">
       {/* Site Filter */}
@@ -282,10 +283,10 @@ export function ReviewsTab({ reviews: initialReviews, sites }: ReviewsTabProps) 
                 filteredReviews.map((review) => (
                   <TableRow
                     key={review.id}
-                    className={getSentimentColor(review.sentiment)}
+                    className={getSentimentColor(review.type)}
                   >
                     <TableCell className="font-medium text-xs sm:text-sm">
-                      {review.visitorName}
+                      {review.name}
                     </TableCell>
                     <TableCell className="text-xs sm:text-sm hidden sm:table-cell">
                       {getSiteName(review.siteId)}
@@ -305,17 +306,17 @@ export function ReviewsTab({ reviews: initialReviews, sites }: ReviewsTabProps) 
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       <div className="flex items-center gap-2">
-                        {getSentimentIcon(review.sentiment)}
+                        {getSentimentIcon(review.type)}
                         <Badge
                           className={
-                            review.sentiment === "positive"
+                            review.type === "positive"
                               ? "bg-green-100 text-green-800 text-xs"
                               : review.sentiment === "negative"
                                 ? "bg-red-100 text-red-800 text-xs"
                                 : "bg-yellow-100 text-yellow-800 text-xs"
                           }
                         >
-                          {review.sentiment === "positive"
+                          {review.type === "positive"
                             ? "Positif"
                             : review.sentiment === "negative"
                               ? "Négatif"
@@ -369,7 +370,7 @@ export function ReviewsTab({ reviews: initialReviews, sites }: ReviewsTabProps) 
                 </h4>
                 <div className="space-y-2 text-xs sm:text-sm">
                   <p>
-                    <strong>Client:</strong> {selectedReview.visitorName}
+                    <strong>Client:</strong> {selectedReview.name}
                   </p>
                   <p>
                     <strong>Site:</strong> {getSiteName(selectedReview.siteId)}
